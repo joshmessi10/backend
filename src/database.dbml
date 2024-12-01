@@ -1,0 +1,135 @@
+Project smart_wallet_database {
+  database_type: 'PostgreSQL'
+  Note: '''
+    # Ecommerce Database
+    **markdown content here**
+  '''
+}
+
+Table usuario {
+  id_usuario bigint [pk, increment]
+  nombre_usuario text
+  apellido_usuario text
+  email text [unique]
+  password text
+  telefono text
+  rol integer
+  fecha_creacion timestamp
+  ultimo_acceso timestamp
+  doble_autenticacion boolean
+  intentos_fallidos integer
+  bloqueado boolean
+}
+
+Table billetera {
+  id_billetera bigint [pk, increment]
+  id_usuario bigint [ref: > usuario.id_usuario]
+  nombre_billetera text
+  modelo text
+  fecha_vinculacion timestamp
+  estado_billetera text
+  nivel_bateria integer
+  ultima_ubicacion bigint
+}
+
+Table celular {
+  id_celular bigint [pk, increment]
+  id_billetera bigint [ref: > billetera.id_billetera]
+  id_usuario bigint [ref: > usuario.id_usuario]
+  nombre_dispositivo text
+  direccion_mac text [unique]
+  sistema_operativo text
+  ultima_fecha_acceso timestamp
+  nivel_bateria integer
+  notificaciones_activas boolean
+}
+
+Table geolocalizacion {
+  id_geolocalizacion bigint [pk, increment]
+  id_billetera bigint [ref: > billetera.id_billetera]
+  latitud double
+  longitud double
+  fecha_registro timestamp
+}
+
+Table evento {
+  id_evento bigint [pk, increment]
+  id_billetera bigint [ref: > billetera.id_billetera]
+  id_sensor bigint
+  tipo_evento text
+  fecha_hora timestamp
+  nivel_bateria integer
+  ubicacion bigint
+  prioridad integer
+}
+
+Table sensor {
+  id_sensor bigint [pk, increment]
+  id_billetera bigint [ref: > billetera.id_billetera]
+  tipo_sensor text
+  estado_sensor boolean
+  lectura_sensor integer
+  ultima_lectura timestamp
+}
+
+Table configuracion {
+  id_configuracion bigint [pk, increment]
+  id_usuario bigint [ref: > usuario.id_usuario]
+  id_billetera bigint [ref: > billetera.id_billetera]
+  modo_alerta text
+  umbral_sensibilidad_acl integer
+  desbloqueo_remoto boolean
+  alerta_sonora boolean
+  notificaciones_activas boolean
+}
+
+Table notificaciones {
+  id_notificacion bigint [pk, increment]
+  id_usuario bigint [ref: > usuario.id_usuario]
+  id_evento bigint [ref: > evento.id_evento]
+  tipo_notificacion text
+  mensaje text
+  fecha_envio timestamp
+  estado_notificacion text
+}
+
+Table historial_conexiones {
+  id_conexion bigint [pk, increment]
+  tipo_conexion boolean
+  id_billetera bigint [ref: > billetera.id_billetera]
+  fecha_hora timestamp
+  nivel_bateria integer
+  distancia_estimada integer
+}
+
+Table respaldo {
+  id_respaldo bigint [pk, increment]
+  id_usuario bigint [ref: > usuario.id_usuario]
+  id_billetera bigint [ref: > billetera.id_billetera]
+  fecha_respaldo timestamp
+  tamano_respaldo integer
+  estado_respaldo boolean
+  version_datos text
+}
+
+Table historial_bateria {
+  id_bateria bigint [pk, increment]
+  id_billetera bigint [ref: > billetera.id_billetera]
+  nivel_bateria integer
+  fecha_hora timestamp
+  estado_cargando boolean
+}
+
+Table registros_actividad {
+  id_actividad bigint [pk, increment]
+  id_usuario bigint [ref: > usuario.id_usuario]
+  id_billetera bigint [ref: > billetera.id_billetera]
+  fecha_hora timestamp
+  accion boolean
+  ubicacion_estimada bigint
+}
+
+Table blacklist_tokens {
+  id_token bigint [pk, increment]
+  token text
+}
