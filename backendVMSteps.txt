@@ -1,0 +1,38 @@
+curl -fsSL https://deb.nodesource.com/setup_23.x -o nodesource_setup.sh
+sudo -E bash nodesource_setup.sh
+sudo apt install -y nodejs 
+sudo apt install apache2
+sudo systemctl enable apache2
+cd /var/www
+sudo git clone https://github.com/joshmessi10/backend
+cd backend
+sudo npm install express mongoose dotenv cors md5 cookie-parser express-validator jsonwebtoken
+sudo nano /etc/apache2/sites-available/000-default.conf
+()
+<VirtualHost *:80>
+     ServerName example.com
+    ProxyRequests Off
+    ProxyPreserveHost On
+    ProxyVia Full
+    <Proxy *>
+        Require all granted
+    </Proxy>
+    <Location /src>
+        ProxyPass http://127.0.0.1:3000/
+        ProxyPassReverse http://127.0.0.1:3000/
+    </Location>
+     <Directory "/var/www/backend">
+     AllowOverride All
+     </Directory>
+</VirtualHost>
+()
+cd src
+sudo nano server.js
+(#!/usr/bin/env nodejs)
+sudo chmod 755 server.js
+sudo npm install -g pm2
+sudo pm2 start server.js
+sudo pm2 startup systemd
+sudo a2enmod proxy
+sudo a2enmod proxy_http
+sudo systemctl restart apache2
