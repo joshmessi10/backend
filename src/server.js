@@ -19,11 +19,7 @@ const app = express();
 
 app.use(express.json());
 
-app.use(cors({
-    origin: 'http://localhost:8080', // Frontend (ajustar según corresponda)
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true, // Asegura que las cookies sean enviadas y recibidas
-}));
+app.use(cors());
 app.disable("x-powered-by"); //Reduce fingerprinting
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
@@ -51,6 +47,9 @@ const Respaldo = require('./models/Respaldo'); // Importar modelo Respaldo
 const HistorialBateria = require('./models/Bateria.js');
 const RegistrosActividad = require('./models/Actividad');
 
+app.get('/', (req, res) => {
+    res.send('<h1>Bienvenido a mi Backend #1</h1><p>La API está funcionando correctamente.</p>');
+});
 
 app.listen(3000, () => {
     console.log("Servidor escuchando por el puerto 3000");
