@@ -8,12 +8,12 @@ const BilleteraSchema = new Schema({
         required: true 
     },
     nombre_billetera: { 
-        type: String, 
+        type: String,
+        unique: true, 
         required: true 
     },
-    modelo: { 
+    modelo_billetera: { 
         type: String,
-        required: true
     },
     fecha_vinculacion: { 
         type: Date, 
@@ -26,7 +26,6 @@ const BilleteraSchema = new Schema({
     },
     nivel_bateria: { 
         type: Number, 
-        required: true 
     },
     ultima_ubicacion: { 
         type: Schema.Types.ObjectId, 

@@ -15,7 +15,6 @@ const SensorSchema = new Schema({
     estado_sensor: { 
         type: Boolean, 
         default: true, 
-        required: true 
     },
     lectura_sensor: { 
         type: Number, 
@@ -27,9 +26,5 @@ const SensorSchema = new Schema({
     }
 });
 
-SensorSchema.index({ 
-    _id: 1, 
-    tipo_sensor: 1
-}, { unique: true });
 
 module.exports = mongoose.model('Sensor', SensorSchema);

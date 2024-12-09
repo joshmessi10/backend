@@ -157,6 +157,7 @@ app.post('/login', [
             return res.status(200).json({
                 status: "success",
                 message: "Inicio de sesión exitoso.",
+                id_usuario: usuario._id,
             });
         } else {
             usuario.intentos_fallidos += 1;
@@ -273,6 +274,11 @@ app.post('/billetera', [
             msg: "Billetera guardada en la base de datos",
             billetera: savedBilletera
         });
+        res.status(201).send({
+            msg: "Billetera guardada en la base de datos",
+            id_billetera: savedBilletera._id, // Returning the _id
+            nombre_billetera: savedBilletera.nombre_billetera
+        });
     } catch (err) {
         console.log(err);
         if (err.name === 'ValidationError') {
@@ -289,6 +295,38 @@ app.post('/billetera', [
         }
         res.status(500).send({
             error: "Error al guardar la billetera",
+            details: err.message
+        });
+    }
+});
+
+app.get('/billetera', async (req, res) => {
+    const { nombre_billetera } = req.query;
+
+    if (!nombre_billetera) {
+        return res.status(400).send({
+            error: "nombre_billetera parameter is required"
+        });
+    }
+
+    try {
+        // Find billeteras with the given nombre_billetera
+        const billeteras = await Billetera.find({ nombre_billetera }).populate('id_usuario').populate('ultima_ubicacion');
+
+        if (billeteras.length === 0) {
+            return res.status(404).send({
+                msg: "No billeteras found with the given nombre_billetera"
+            });
+        }
+
+        res.status(200).send({
+            msg: "Billeteras retrieved successfully",
+            data: billeteras
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).send({
+            error: "Error fetching billeteras",
             details: err.message
         });
     }
@@ -377,10 +415,8 @@ app.post('/sensor', [
 // Endpoint para crear un evento
 app.post('/evento', [
     body('id_billetera').notEmpty().withMessage('id_billetera es requerido'),
-    body('id_sensor').notEmpty().withMessage('id_sensor es requerido'),
-    body('tipo_evento').isIn(['acceso_no_autorizado', 'caida_detectada', 'desconexion', 'null']).withMessage('tipo_evento es inválido'),
-    body('nivel_bateria').isNumeric().withMessage('nivel_bateria debe ser un número'),
-    body('id_geolocalizacion').notEmpty().withMessage('geolocalizacion es requerida')
+    body('tipo_evento').isIn(['billetera_abierta', 'caida_detectada', 'movimiento_brusco', 'bateria_baja', 'desconexion', 'null']).withMessage('tipo_evento es inválido'),
+    body('nivel_bateria').isNumeric().withMessage('nivel_bateria debe ser un número')
 ], async (req, res) => {
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
@@ -418,10 +454,9 @@ app.post('/evento', [
 
 // Endpoint para crear un registro de conexión
 app.post('/conexion', [
-    body('tipo_conexion').isBoolean().withMessage('tipo_conexion debe ser un booleano (1 para conexión, 0 para desconexión)'),
     body('id_billetera').notEmpty().withMessage('id_billetera es requerido'),
+    body('tipo_conexion').isBoolean().withMessage('tipo_conexion debe ser un booleano (1 para conexión, 0 para desconexión)'),
     body('nivel_bateria').isNumeric().withMessage('nivel_bateria debe ser un número'),
-    body('distancia').optional().isNumeric().withMessage('distancia debe ser un número si se proporciona')
 ], async (req, res) => {
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
