@@ -1,15 +1,15 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const SensorSchema = new Schema({
     id_billetera: { 
         type: Schema.Types.ObjectId,
-        ref: 'Billetera', 
+        ref: "Billetera", 
         required: true 
     },
     tipo_sensor: { 
         type: String, 
-        enum: ['acelerometro', 'magnetico', 'bateria', 'bluetooth'], 
+        enum: ["acelerometro", "magnetico", "bateria", "bluetooth"], 
         required: true 
     }, 
     estado_sensor: { 
@@ -27,4 +27,4 @@ const SensorSchema = new Schema({
 });
 
 
-module.exports = mongoose.model('Sensor', SensorSchema);
+module.exports = mongoose.model("Sensor", SensorSchema);

@@ -1,15 +1,15 @@
-require('dotenv').config();
+require("dotenv").config();
 
-const mongoose = require('mongoose');
-const express = require('express');
-const cors = require('cors');
-const md5 = require('md5');
-const cookieParser = require('cookie-parser');
-const { PORT, URI } = require('./config/index.js');
-const Router = require('./routes/index.js');
-const Blacklist = require('./models/Blacklist.js');
-const Verify = require('./middleware/verify.js');
-const { body, validationResult } = require('express-validator');
+const mongoose = require("mongoose");
+const express = require("express");
+const cors = require("cors");
+const md5 = require("md5");
+const cookieParser = require("cookie-parser");
+const { PORT, URI } = require("./config/index.js");
+const Router = require("./routes/index.js");
+const Blacklist = require("./models/Blacklist.js");
+const Verify = require("./middleware/verify.js");
+const { body, validationResult } = require("express-validator");
 
 
 
@@ -34,21 +34,21 @@ mongoose.connect(connection, {
 
 Router(app);
 
-const User = require('./models/Usuario');
-const Billetera = require('./models/Billetera');
-const Geolocalizacion = require('./models/Geolocalizacion');
-const Sensor = require('./models/Sensor');
-const Evento = require('./models/Evento');
-const Conexion = require('./models/Conexion');
-const Celular = require('./models/Celular'); 
-const ConfiguracionUsuario = require('./models/ConfiguracionUsuario'); 
-const Notificacion = require('./models/Notificacion'); // Importar modelo Notificacion
-const Respaldo = require('./models/Respaldo'); // Importar modelo Respaldo
-const HistorialBateria = require('./models/Bateria.js');
-const RegistrosActividad = require('./models/Actividad');
+const User = require("./models/Usuario");
+const Billetera = require("./models/Billetera");
+const Geolocalizacion = require("./models/Geolocalizacion");
+const Sensor = require("./models/Sensor");
+const Evento = require("./models/Evento");
+const Conexion = require("./models/Conexion");
+const Celular = require("./models/Celular"); 
+const ConfiguracionUsuario = require("./models/ConfiguracionUsuario"); 
+const Notificacion = require("./models/Notificacion"); // Importar modelo Notificacion
+const Respaldo = require("./models/Respaldo"); // Importar modelo Respaldo
+const HistorialBateria = require("./models/Bateria.js");
+const RegistrosActividad = require("./models/Actividad");
 
-app.get('/', (req, res) => {
-    res.send('<h1>Bienvenido a mi Backend #1</h1><p>La API está funcionando correctamente.</p>');
+app.get("/", (req, res) => {
+    res.send("<h1>Bienvenido a mi Backend #1</h1><p>La API está funcionando correctamente.</p>");
 });
 
 app.listen(3000, () => {
@@ -58,15 +58,15 @@ app.listen(3000, () => {
 // Endpoint para registrar un usuario
 
 
-app.post('/register', [
-    body('nombre_usuario').notEmpty().withMessage('El nombre de usuario es requerido'),
-    body('apellido_usuario').notEmpty().withMessage('El apellido de usuario es requerido'),
-    body('email').isEmail().withMessage('Email no es válido').normalizeEmail(),
-    body('password').notEmpty().isStrongPassword({ minLength: 10, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1 }).withMessage('La contraseña no es segura, debe tener al menos una mayúscula, minúscula, número y símbolo'),
-    body('telefono')
-        .notEmpty().withMessage('El teléfono es requerido')
-        .isLength({ min: 10, max: 10 }).withMessage('El número de teléfono debe tener exactamente 10 dígitos')
-        .isNumeric().withMessage('El teléfono debe contener solo números'),
+app.post("/register", [
+    body("nombre_usuario").notEmpty().withMessage("El nombre de usuario es requerido"),
+    body("apellido_usuario").notEmpty().withMessage("El apellido de usuario es requerido"),
+    body("email").isEmail().withMessage("Email no es válido").normalizeEmail(),
+    body("password").notEmpty().isStrongPassword({ minLength: 10, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1 }).withMessage("La contraseña no es segura, debe tener al menos una mayúscula, minúscula, número y símbolo"),
+    body("telefono")
+        .notEmpty().withMessage("El teléfono es requerido")
+        .isLength({ min: 10, max: 10 }).withMessage("El número de teléfono debe tener exactamente 10 dígitos")
+        .isNumeric().withMessage("El teléfono debe contener solo números"),
 ], async (req, res) => {
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
@@ -91,7 +91,7 @@ app.post('/register', [
         });
     } catch (err) {
         console.log("Error al guardar el usuario:", err);
-        if (err.name === 'ValidationError') {
+        if (err.name === "ValidationError") {
             return res.status(400).send({
                 error: "Error de validación",
                 detalles: err.message
@@ -111,9 +111,9 @@ app.post('/register', [
 });
 
 // Endpoint para login
-app.post('/login', [
-    body('email').isEmail().withMessage('Email no es válido').normalizeEmail(),
-    body('password').notEmpty().withMessage('La contraseña es requerida')
+app.post("/login", [
+    body("email").isEmail().withMessage("Email no es válido").normalizeEmail(),
+    body("password").notEmpty().withMessage("La contraseña es requerida")
 ], async (req, res) => {
     const { email, password } = req.body;
     const hashedPassword = md5(password); // Mantener el hash md5 para la contraseña
@@ -147,7 +147,7 @@ app.post('/login', [
             let options = {
                 maxAge: 20 * 60 * 1000, // Expira en 20 minutos
                 httpOnly: false, // La cookie solo es accesible por el servidor
-                secure: false, // Usa 'true' solo en producción
+                secure: false, // Usa "true" solo en producción
                 sameSite: "None",
             };
 
@@ -183,21 +183,21 @@ app.post('/login', [
 
 
 
-app.get('/verify-session', Verify, (req, res) => {
+app.get("/verify-session", Verify, (req, res) => {
     res.status(200).json({
-        status: 'success',
-        message: 'Sesión verificada con éxito',
+        status: "success",
+        message: "Sesión verificada con éxito",
     });
 });
 
 // Endpoint to get user data
-app.get('/user-data', Verify, async (req, res) => {
+app.get("/user-data", Verify, async (req, res) => {
     try {
         // Extract the user ID from the verified session (usually set during login or token creation)
         const userId = req.userId; // Assuming `Verify` middleware attaches the userId to the request object
         
         // Fetch user data from the database
-        const usuario = await User.findById(userId).select('-password'); // Exclude password from the response
+        const usuario = await User.findById(userId).select("-password"); // Exclude password from the response
 
         if (!usuario) {
             return res.status(404).json({
@@ -227,13 +227,13 @@ app.get('/user-data', Verify, async (req, res) => {
     }
 });
 
-app.post('/logout', async (req, res) => {
+app.post("/logout", async (req, res) => {
     try {
-        const authHeader = req.headers['cookie']; // Obtener la cookie de sesión del encabezado de la solicitud
+        const authHeader = req.headers["cookie"]; // Obtener la cookie de sesión del encabezado de la solicitud
         if (!authHeader) return res.status(401).json({ message: "Unauthorized" }); // Si no hay cookie, responde no autorizado
         
-        const cookie = authHeader.split('=')[1]; // Si hay cookie, obtener el jwt dividiendo el string
-        const accessToken = cookie.split(';')[0];
+        const cookie = authHeader.split("=")[1]; // Si hay cookie, obtener el jwt dividiendo el string
+        const accessToken = cookie.split(";")[0];
         
         // Verificar si el token está en la lista negra
         const checkIfBlacklisted = await Blacklist.findOne({ token: accessToken });
@@ -246,20 +246,20 @@ app.post('/logout', async (req, res) => {
         await newBlacklist.save();
         
         // Limpiar la cookie en el cliente
-        res.setHeader('Clear-Site-Data', '"cookies"');
-        res.status(200).json({ message: 'You are logged out!' });
+        res.setHeader("Clear-Site-Data", "cookies");
+        res.status(200).json({ message: "You are logged out!" });
     } catch (err) {
         res.status(500).json({
-            status: 'error',
-            message: 'Internal Server Error',
+            status: "error",
+            message: "Internal Server Error",
             error: err.message // Puedes incluir el mensaje de error aquí si es seguro
         });
     }
 });
 // Endpoint para crear una billetera
-app.post('/billetera', [
-    body('id_usuario').notEmpty().withMessage('id_usuario es requerido'),
-    body('nombre_billetera').notEmpty().withMessage('nombre_billetera es requerido')
+app.post("/billetera", [
+    body("id_usuario").notEmpty().withMessage("id_usuario es requerido"),
+    body("nombre_billetera").notEmpty().withMessage("nombre_billetera es requerido")
 ], async (req, res) => {
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
@@ -281,7 +281,7 @@ app.post('/billetera', [
         });
     } catch (err) {
         console.log(err);
-        if (err.name === 'ValidationError') {
+        if (err.name === "ValidationError") {
             return res.status(400).send({
                 error: "Error de validación",
                 details: err.message
@@ -300,7 +300,7 @@ app.post('/billetera', [
     }
 });
 
-app.get('/billetera', async (req, res) => {
+app.get("/billetera", async (req, res) => {
     const { nombre_billetera } = req.query;
 
     if (!nombre_billetera) {
@@ -311,7 +311,7 @@ app.get('/billetera', async (req, res) => {
 
     try {
         // Find billeteras with the given nombre_billetera
-        const billeteras = await Billetera.find({ nombre_billetera }).populate('id_usuario').populate('ultima_ubicacion');
+        const billeteras = await Billetera.find({ nombre_billetera }).populate("id_usuario").populate("ultima_ubicacion");
 
         if (billeteras.length === 0) {
             return res.status(404).send({
@@ -333,10 +333,10 @@ app.get('/billetera', async (req, res) => {
 });
 
 // Endpoint para crear un registro de geolocalización
-app.post('/geolocalizacion', [
-    body('id_billetera').notEmpty().withMessage('id_billetera es requerido'),
-    body('latitud').isNumeric().withMessage('La latitud debe ser un número'),
-    body('longitud').isNumeric().withMessage('La longitud debe ser un número')
+app.post("/geolocalizacion", [
+    body("id_billetera").notEmpty().withMessage("id_billetera es requerido"),
+    body("latitud").isNumeric().withMessage("La latitud debe ser un número"),
+    body("longitud").isNumeric().withMessage("La longitud debe ser un número")
 ], async (req, res) => {
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
@@ -353,7 +353,7 @@ app.post('/geolocalizacion', [
         });
     } catch (err) {
         console.log(err);
-        if (err.name === 'ValidationError') {
+        if (err.name === "ValidationError") {
             return res.status(400).send({
                 error: "Error de validación",
                 details: err.message
@@ -373,10 +373,10 @@ app.post('/geolocalizacion', [
 });
 
 // Endpoint para crear un registro de sensor
-app.post('/sensor', [
-    body('id_billetera').notEmpty().withMessage('id_billetera es requerido'),
-    body('tipo_sensor').notEmpty().withMessage('tipo_sensor es requerido'),
-    body('lectura_sensor').isNumeric().withMessage('lectura_sensor debe ser un número'),
+app.post("/sensor", [
+    body("id_billetera").notEmpty().withMessage("id_billetera es requerido"),
+    body("tipo_sensor").notEmpty().withMessage("tipo_sensor es requerido"),
+    body("lectura_sensor").isNumeric().withMessage("lectura_sensor debe ser un número"),
 ], async (req, res) => {
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
@@ -393,7 +393,7 @@ app.post('/sensor', [
         });
     } catch (err) {
         console.log(err);
-        if (err.name === 'ValidationError') {
+        if (err.name === "ValidationError") {
             return res.status(400).send({
                 error: "Error de validación",
                 details: err.message
@@ -413,10 +413,10 @@ app.post('/sensor', [
 });
 
 // Endpoint para crear un evento
-app.post('/evento', [
-    body('id_billetera').notEmpty().withMessage('id_billetera es requerido'),
-    body('tipo_evento').isIn(['billetera_abierta', 'caida_detectada', 'movimiento_brusco', 'bateria_baja', 'desconexion', 'null']).withMessage('tipo_evento es inválido'),
-    body('nivel_bateria').isNumeric().withMessage('nivel_bateria debe ser un número')
+app.post("/evento", [
+    body("id_billetera").notEmpty().withMessage("id_billetera es requerido"),
+    body("tipo_evento").isIn(["billetera_abierta", "caida_detectada", "movimiento_brusco", "bateria_baja", "desconexion", "null"]).withMessage("tipo_evento es inválido"),
+    body("nivel_bateria").isNumeric().withMessage("nivel_bateria debe ser un número")
 ], async (req, res) => {
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
@@ -433,7 +433,7 @@ app.post('/evento', [
         });
     } catch (err) {
         console.log(err);
-        if (err.name === 'ValidationError') {
+        if (err.name === "ValidationError") {
             return res.status(400).send({
                 error: "Error de validación",
                 details: err.message
@@ -453,10 +453,10 @@ app.post('/evento', [
 });
 
 // Endpoint para crear un registro de conexión
-app.post('/conexion', [
-    body('id_billetera').notEmpty().withMessage('id_billetera es requerido'),
-    body('tipo_conexion').isBoolean().withMessage('tipo_conexion debe ser un booleano (1 para conexión, 0 para desconexión)'),
-    body('nivel_bateria').isNumeric().withMessage('nivel_bateria debe ser un número'),
+app.post("/conexion", [
+    body("id_billetera").notEmpty().withMessage("id_billetera es requerido"),
+    body("tipo_conexion").isBoolean().withMessage("tipo_conexion debe ser un booleano (1 para conexión, 0 para desconexión)"),
+    body("nivel_bateria").isNumeric().withMessage("nivel_bateria debe ser un número"),
 ], async (req, res) => {
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
@@ -473,7 +473,7 @@ app.post('/conexion', [
         });
     } catch (err) {
         console.log(err);
-        if (err.name === 'ValidationError') {
+        if (err.name === "ValidationError") {
             return res.status(400).send({
                 error: "Error de validación",
                 details: err.message
@@ -493,12 +493,12 @@ app.post('/conexion', [
 });
 
 // Endpoint para crear un registro de celular
-app.post('/celular', [
-    body('id_billetera').notEmpty().withMessage('id_billetera es requerido'),
-    body('id_usuario').notEmpty().withMessage('id_usuario es requerido'),
-    body('nombre_dispositivo').notEmpty().withMessage('nombre_dispositivo es requerido'),
-    body('direccion_mac').notEmpty().withMessage('direccion_mac es requerida'),
-    body('sistema_operativo').notEmpty().withMessage('sistema operativo es requerida')
+app.post("/celular", [
+    body("id_billetera").notEmpty().withMessage("id_billetera es requerido"),
+    body("id_usuario").notEmpty().withMessage("id_usuario es requerido"),
+    body("nombre_dispositivo").notEmpty().withMessage("nombre_dispositivo es requerido"),
+    body("direccion_mac").notEmpty().withMessage("direccion_mac es requerida"),
+    body("sistema_operativo").notEmpty().withMessage("sistema operativo es requerida")
 ], async (req, res) => {
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
@@ -515,7 +515,7 @@ app.post('/celular', [
         });
     } catch (err) {
         console.log(err);
-        if (err.name === 'ValidationError') {
+        if (err.name === "ValidationError") {
             return res.status(400).send({
                 error: "Error de validación",
                 details: err.message
@@ -536,13 +536,13 @@ app.post('/celular', [
 
 
 // Endpoint para crear una configuración de usuario
-app.post('/configuracion', [
-    body('id_usuario').notEmpty().withMessage('id_usuario es requerido'),
-    body('id_billetera').notEmpty().withMessage('id_billetera es requerido'),
-    body('modo_alerta').optional().isIn(['silencio', 'vibración', 'sonido']).withMessage('modo_alerta debe ser "silencio", "vibración" o "sonido"'),
-    body('umbral_sensibilidad_acl_g').optional().isNumeric().withMessage('umbral_sensibilidad_acl_g debe ser un número'),
-    body('desbloqueo_remoto').optional().isBoolean().withMessage('desbloqueo_remoto debe ser un booleano'),
-    body('alerta_sonora').optional().isBoolean().withMessage('alerta_sonora debe ser un booleano')
+app.post("/configuracion", [
+    body("id_usuario").notEmpty().withMessage("id_usuario es requerido"),
+    body("id_billetera").notEmpty().withMessage("id_billetera es requerido"),
+    body("modo_alerta").optional().isIn(["silencio", "vibración", "sonido"]).withMessage("modo_alerta debe ser silencio, vibración o sonido"),
+    body("umbral_sensibilidad_acl_g").optional().isNumeric().withMessage("umbral_sensibilidad_acl_g debe ser un número"),
+    body("desbloqueo_remoto").optional().isBoolean().withMessage("desbloqueo_remoto debe ser un booleano"),
+    body("alerta_sonora").optional().isBoolean().withMessage("alerta_sonora debe ser un booleano")
 ], async (req, res) => {
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
@@ -559,7 +559,7 @@ app.post('/configuracion', [
         });
     } catch (err) {
         console.log(err);
-        if (err.name === 'ValidationError') {
+        if (err.name === "ValidationError") {
             return res.status(400).send({
                 error: "Error de validación",
                 details: err.message
@@ -579,10 +579,10 @@ app.post('/configuracion', [
 });
 
 // Endpoint para crear una notificación
-app.post('/notificacion', [
-    body('id_usuario').notEmpty().withMessage('id_usuario es requerido'),
-    body('tipo_notificacion').notEmpty().withMessage('tipo_notificacion es requerido'),
-    body('contenido_notificacion').notEmpty().withMessage('contenido_notificacion es requerido'),
+app.post("/notificacion", [
+    body("id_usuario").notEmpty().withMessage("id_usuario es requerido"),
+    body("tipo_notificacion").notEmpty().withMessage("tipo_notificacion es requerido"),
+    body("contenido_notificacion").notEmpty().withMessage("contenido_notificacion es requerido"),
 ], async (req, res) => {
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
@@ -600,7 +600,7 @@ app.post('/notificacion', [
     } catch (err) {
         console.log(err);
         
-        if (err.name === 'ValidationError') {
+        if (err.name === "ValidationError") {
             return res.status(400).send({
                 error: "Error de validación",
                 details: err.message
@@ -621,10 +621,10 @@ app.post('/notificacion', [
 });
 
 // Endpoint para crear un respaldo
-app.post('/respaldo', [
-    body('tamaño_respaldo').isNumeric().withMessage('tamaño_respaldo debe ser un número'),
-    body('estado_respaldo').isBoolean().withMessage('estado_respaldo debe ser un booleano'),
-    body('version_datos').notEmpty().withMessage('version_datos es requerido'),
+app.post("/respaldo", [
+    body("tamaño_respaldo").isNumeric().withMessage("tamaño_respaldo debe ser un número"),
+    body("estado_respaldo").isBoolean().withMessage("estado_respaldo debe ser un booleano"),
+    body("version_datos").notEmpty().withMessage("version_datos es requerido"),
 ], async (req, res) => {
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
@@ -641,7 +641,7 @@ app.post('/respaldo', [
         });
     } catch (err) {
         console.log(err);
-        if (err.name === 'ValidationError') {
+        if (err.name === "ValidationError") {
             return res.status(400).send({
                 error: "Error de validación",
                 details: err.message
@@ -660,10 +660,10 @@ app.post('/respaldo', [
     }
 });
 
-app.post('/historial-bateria', [
-    body('id_billetera').notEmpty().withMessage('id_billetera es requerido').isMongoId().withMessage('id_billetera debe ser un ObjectId válido'),
-    body('nivel_bateria').isNumeric().withMessage('nivel_bateria debe ser un número'),
-    body('estado_cargando').isBoolean().withMessage('estado_cargando debe ser un booleano')
+app.post("/historial-bateria", [
+    body("id_billetera").notEmpty().withMessage("id_billetera es requerido").isMongoId().withMessage("id_billetera debe ser un ObjectId válido"),
+    body("nivel_bateria").isNumeric().withMessage("nivel_bateria debe ser un número"),
+    body("estado_cargando").isBoolean().withMessage("estado_cargando debe ser un booleano")
 ], async (req, res) => {
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
@@ -680,7 +680,7 @@ app.post('/historial-bateria', [
         });
     } catch (err) {
         console.log(err);
-        if (err.name === 'ValidationError') {
+        if (err.name === "ValidationError") {
             return res.status(400).send({
                 error: "Error de validación",
                 details: err.message
@@ -699,10 +699,10 @@ app.post('/historial-bateria', [
     }
 });
 
-app.post('/registro-actividad', [
-    body('id_usuario').notEmpty().withMessage('id_usuario es requerido').isMongoId().withMessage('id_usuario debe ser un ObjectId válido'),
-    body('id_billetera').notEmpty().withMessage('id_billetera es requerido').isMongoId().withMessage('id_billetera debe ser un ObjectId válido'),
-    body('accion').isBoolean().withMessage('accion debe ser un booleano')
+app.post("/registro-actividad", [
+    body("id_usuario").notEmpty().withMessage("id_usuario es requerido").isMongoId().withMessage("id_usuario debe ser un ObjectId válido"),
+    body("id_billetera").notEmpty().withMessage("id_billetera es requerido").isMongoId().withMessage("id_billetera debe ser un ObjectId válido"),
+    body("accion").isBoolean().withMessage("accion debe ser un booleano")
 ], async (req, res) => {
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
@@ -719,7 +719,7 @@ app.post('/registro-actividad', [
         });
     } catch (err) {
         console.log(err);
-        if (err.name === 'ValidationError') {
+        if (err.name === "ValidationError") {
             return res.status(400).send({
                 error: "Error de validación",
                 details: err.message

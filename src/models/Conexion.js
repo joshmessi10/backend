@@ -1,10 +1,10 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const ConexionSchema = new Schema({
     id_billetera: { 
         type: Schema.Types.ObjectId, 
-        ref: 'Billetera', 
+        ref: "Billetera", 
         required: true 
     },
     tipo_conexion: { 
@@ -21,4 +21,4 @@ const ConexionSchema = new Schema({
     }
 });
 
-module.exports = mongoose.model('Conexion', ConexionSchema);
+module.exports = mongoose.model("Conexion", ConexionSchema);

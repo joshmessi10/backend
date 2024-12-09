@@ -1,10 +1,10 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const BilleteraSchema = new Schema({
     id_usuario: { 
         type: Schema.Types.ObjectId, 
-        ref: 'Usuario', 
+        ref: "Usuario", 
         required: true 
     },
     nombre_billetera: { 
@@ -21,15 +21,15 @@ const BilleteraSchema = new Schema({
     },
     estado_billetera: { 
         type: String, 
-        enum: ['bloqueada', 'desbloqueada', 'alerta'], 
-        default: 'desbloqueada' 
+        enum: ["bloqueada", "desbloqueada", "alerta"], 
+        default: "desbloqueada" 
     },
     nivel_bateria: { 
         type: Number, 
     },
     ultima_ubicacion: { 
         type: Schema.Types.ObjectId, 
-        ref: 'Geolocalizacion', 
+        ref: "Geolocalizacion", 
         required: false 
     }
 });
@@ -39,4 +39,4 @@ BilleteraSchema.index({
     id_usuario: 1
 }, { unique: true });
 
-module.exports = mongoose.model('Billetera', BilleteraSchema);
+module.exports = mongoose.model("Billetera", BilleteraSchema);
