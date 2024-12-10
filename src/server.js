@@ -301,27 +301,35 @@ app.post("/billetera", [
 });
 
 app.get("/billetera", async (req, res) => {
-    const { nombre_billetera } = req.query;
+    const { id_usuario } = req.query;
 
-    if (!nombre_billetera) {
+    if (!id_usuario) {
         return res.status(400).send({
-            error: "nombre_billetera parameter is required"
+            error: "id_usuario parameter is required"
         });
     }
 
     try {
-        // Find billeteras with the given nombre_billetera
-        const billeteras = await Billetera.find({ nombre_billetera }).populate("id_usuario").populate("ultima_ubicacion");
+        // Find all billeteras for the given id_usuario
+        const billeteras = await Billetera.find({ id_usuario });
 
         if (billeteras.length === 0) {
             return res.status(404).send({
-                msg: "No billeteras found with the given nombre_billetera"
+                msg: "No billeteras found for the given id_usuario"
             });
         }
 
+        // Extract all _id values from billeteras
+        const ids = billeteras.map(billetera => billetera._id);
+
+        // Extract all name values from billeteras
+        const names = billeteras.map(billetera => billetera.nombre_billetera);
+
+        // Send response with the extracted _id values
         res.status(200).send({
             msg: "Billeteras retrieved successfully",
-            data: billeteras
+            ids: ids, // Array of _id values
+            names: names // Optional: include full billeteras if needed
         });
     } catch (err) {
         console.log(err);
@@ -412,6 +420,57 @@ app.post("/sensor", [
     }
 });
 
+app.get("/sensor", async (req, res) => {
+    const { id_billetera } = req.query;
+
+    if (!id_billetera) {
+        return res.status(400).send({
+            error: "id_billetera parameter is required"
+        });
+    }
+
+    try {
+        const tiposSensor = ["acelerometro", "magnetico", "bateria", "bluetooth"];
+        const resultados = {};
+
+        for (const tipo of tiposSensor) {
+            // Find the most recent sensor reading for this tipo_sensor
+            const sensor = await Sensor.findOne({ 
+                id_billetera, 
+                tipo_sensor: tipo 
+            })
+            .sort({ ultima_lectura: -1 }) // Sort by latest reading
+            .exec();
+
+            if (sensor) {
+                resultados[tipo] = {
+                    id_sensor: sensor._id,
+                    estado_sensor: sensor.estado_sensor,
+                    lectura_sensor: sensor.lectura_sensor,
+                    ultima_lectura: sensor.ultima_lectura
+                };
+            }
+        }
+
+        if (Object.keys(resultados).length === 0) {
+            return res.status(404).send({
+                msg: "No sensors found for the given id_billetera"
+            });
+        }
+
+        res.status(200).send({
+            msg: "Most recent sensors retrieved successfully",
+            data: resultados
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).send({
+            error: "Error fetching sensors",
+            details: err.message
+        });
+    }
+});
+
 // Endpoint para crear un evento
 app.post("/evento", [
     body("id_billetera").notEmpty().withMessage("id_billetera es requerido"),
@@ -452,6 +511,46 @@ app.post("/evento", [
     }
 });
 
+app.get("/evento", async (req, res) => {
+    const { id_billetera } = req.query;
+
+    if (!id_billetera) {
+        return res.status(400).send({
+            error: "id_billetera parameter is required"
+        });
+    }
+
+    try {
+        // Find the most recent event for the given id_billetera
+        const evento = await Evento.findOne({ id_billetera })
+            .sort({ fecha_hora: -1 }) // Sort by most recent date
+            .populate("ubicacion") // Populate the ubicacion if it exists
+            .exec();
+
+        if (!evento) {
+            return res.status(404).send({
+                msg: "No events found for the given id_billetera"
+            });
+        }
+
+        res.status(200).send({
+            msg: "Most recent event retrieved successfully",
+            data: {
+                id_evento: evento._id,
+                tipo_evento: evento.tipo_evento,
+                fecha_hora: evento.fecha_hora,
+                ubicacion: evento.ubicacion || null
+            }
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).send({
+            error: "Error fetching the event",
+            details: err.message
+        });
+    }
+});
+
 // Endpoint para crear un registro de conexión
 app.post("/conexion", [
     body("id_billetera").notEmpty().withMessage("id_billetera es requerido"),
@@ -487,6 +586,45 @@ app.post("/conexion", [
         }
         res.status(500).send({
             error: "Error al guardar la conexión",
+            details: err.message
+        });
+    }
+});
+
+app.get("/conexion", async (req, res) => {
+    const { id_billetera } = req.query;
+
+    if (!id_billetera) {
+        return res.status(400).send({
+            error: "id_billetera parameter is required"
+        });
+    }
+
+    try {
+        // Find the most recent connection/disconnection event for the given id_billetera
+        const conexion = await Conexion.findOne({ id_billetera })
+            .sort({ fecha_hora: -1 }) // Sort by most recent date
+            .exec();
+
+        if (!conexion) {
+            return res.status(404).send({
+                msg: "No connection events found for the given id_billetera"
+            });
+        }
+
+        res.status(200).send({
+            msg: "Most recent connection event retrieved successfully",
+            data: {
+                id_conexion: conexion._id,
+                tipo_conexion: conexion.tipo_conexion,
+                fecha_hora: conexion.fecha_hora,
+                nivel_bateria: conexion.nivel_bateria
+            }
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).send({
+            error: "Error fetching the connection event",
             details: err.message
         });
     }
