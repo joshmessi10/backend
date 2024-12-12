@@ -1,3 +1,5 @@
+#!/usr/bin/env nodejs
+
 require("dotenv").config();
 
 const mongoose = require("mongoose");
@@ -539,7 +541,8 @@ app.get("/evento", async (req, res) => {
                 id_evento: evento._id,
                 tipo_evento: evento.tipo_evento,
                 fecha_hora: evento.fecha_hora,
-                ubicacion: evento.ubicacion || null
+                ubicacion: evento.ubicacion || null,
+                nivel_bateria: evento.nivel_bateria // Include nivel_bateria in the response
             }
         });
     } catch (err) {
